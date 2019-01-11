@@ -70,6 +70,20 @@ class PagesPage(CoursePage):
         action.drag_and_drop(source_element, target_element).perform()
         self.wait_for_ajax()
 
+    def drag_and_drop(self, default_tab=False):
+        """
+        Drags and drops the first the static page to the last
+        """
+        if default_tab:
+            draggable_elements = self.q(css='.drag-handle.action').results
+        else:
+            draggable_elements = self.q(css='.component .drag-handle').results
+        source_element = draggable_elements[0]
+        target_element = self.q(css='.new-component-item').results[0]
+        action = ActionChains(self.browser)
+        action.drag_and_drop(source_element, target_element).perform()
+        self.wait_for_ajax()
+
     @property
     def static_tab_titles(self):
         """
@@ -83,12 +97,40 @@ class PagesPage(CoursePage):
         )
         return self.q(css='div.xmodule_StaticTabModule').text
 
+    @property
+    def default_tab_titles(self):
+        """
+        Gets the default tab title
+        Returns:
+            list: list of all the titles
+        """
+        return self.q(css='.course-nav-list.ui-sortable h3').text
+
     def open_settings_tab(self):
         """
         Clicks settings tab
         """
         self.q(css='.editor-modes .settings-button').first.click()
         self.wait_for_ajax()
+
+    def check_tab_visibility_status(self, tab_name):
+        """
+        Checks for the tab's visibility
+        Args:
+            tab_name(string): Name of the tab for which visibility is to be checked
+        Returns:
+            bool: True if tab is visible
+            bool: False if tab is not visible
+        """
+        return self.q(css='[data-tab-id="{}"] .toggle-checkbox'.format(tab_name)).selected
+
+    def toggle_tab(self, tab_name):
+        """
+        Toggles the visibility on tab
+        Args:
+            tab_name(string): Name of the tab to be toggled
+        """
+        self.q(css='[data-tab-id="{}"] .action-visible'.format(tab_name)).first.click()
 
     def set_field_val(self, field_display_name, field_value):
         """
